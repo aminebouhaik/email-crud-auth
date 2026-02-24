@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: email_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: email_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+    networks:
+      - email_network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: email_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: email_app
+      DB_PORT: 5432
+      JWT_SECRET: mysecret
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - email_network
+
+  frontend:
+    build:
+      context: ./client
+    container_name: email_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - email_network
+
+volumes:
+  pgdata:
+
+networks:
+  email_network:
