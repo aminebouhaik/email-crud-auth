@@ -24,8 +24,7 @@ services:
       - email_network
 
   backend:
-    build:
-      context: ./backend
+    image: ${DOCKER_USERNAME:-aminebouhaik13}/email-app-backend:latest
     container_name: email_backend
     restart: always
     ports:
@@ -45,8 +44,7 @@ services:
       - email_network
 
   frontend:
-    build:
-      context: ./client
+    image: ${DOCKER_USERNAME:-aminebouhaik13}/email-app-frontend:latest
     container_name: email_frontend
     restart: always
     ports:
@@ -61,3 +59,4 @@ volumes:
 
 networks:
   email_network:
+    driver: bridge
