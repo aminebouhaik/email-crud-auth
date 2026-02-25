@@ -1,0 +1,25 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: [self-hosted, linux, docker]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Show runner info
+        run: |
+          echo "Runner: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Directory: $(pwd)"
+          docker --version
+          docker-compose --version
+      
+      - name: List directory
+        run: ls -la
