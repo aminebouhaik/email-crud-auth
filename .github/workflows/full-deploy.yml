@@ -21,7 +21,7 @@ jobs:
       
       - name: Show runner info
         run: |
-          echo "Running on self-hosted runner"
+          echo "🚀 Running on self-hosted runner"
           echo "Runner: $(hostname)"
           echo "User: $(whoami)"
           echo "Directory: $(pwd)"
@@ -43,40 +43,42 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/email-app-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/email-app-frontend:latest
       
+      - name: Clean up existing containers
+        run: |
+          echo "🧹 Cleaning up existing containers..."
+          # Force remove any containers with these names
+          docker rm -f email_postgres email_backend email_frontend 2>/dev/null || true
+          
+          # Remove any orphaned containers from previous runs
+          docker container prune -f
+      
       - name: Deploy with Docker Compose
         run: |
-          # Set Docker Hub username for docker-compose
           export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           
-          echo " Stopping old containers..."
-          docker-compose down -v || true
-          
-          echo " Pulling latest images..."
+          echo "🏗️ Pulling latest images..."
           docker-compose pull
           
-          echo "Starting new containers..."
+          echo "🚀 Starting new containers..."
           docker-compose up -d
           
-          echo "Deployment complete!"
+          echo "✅ Deployment complete!"
           docker-compose ps
       
-      - name: Wait for services to be healthy
-        run: |
-          echo " Waiting for services to be ready..."
-          sleep 15
+      - name: Wait for services
+        run: sleep 15
       
       - name: Verify Backend
         run: |
-          echo " Checking backend..."
-          curl -f http://localhost:5000/health || echo "Backend health check failed (might not have /health endpoint)"
-          curl -f http://localhost:5000 || echo "Backend not responding on port 5000"
+          echo "🔍 Checking backend..."
+          curl -f http://localhost:5000 || echo "⚠️ Backend not responding on port 5000"
       
       - name: Verify Frontend
         run: |
-          echo "Checking frontend..."
-          curl -f http://localhost:3000 || echo " Frontend not responding on port 3000"
+          echo "🔍 Checking frontend..."
+          curl -f http://localhost:3000 || echo "⚠️ Frontend not responding on port 3000"
       
       - name: Show running containers
         run: |
-          echo " Running containers:"
+          echo "📋 Running containers:"
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
