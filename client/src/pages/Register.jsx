@@ -46,7 +46,7 @@ function Register() {
           <div className="auth-card-body">
             <div className="auth-logo">🚀</div>
             <h1 className="auth-title">Join Us</h1>
-            <p className="auth-subtitle">enter your </p>
+            <p className="auth-subtitle"></p>
 
             {error && (
               <div className="error-alert shake">
