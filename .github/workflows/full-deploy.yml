@@ -1,0 +1,85 @@
+name: Full CI/CD with Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, linux, docker]  
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+        
+          path: /home/amine/actions-runner/_work/email-crud-auth/${{ github.event.repository.name }}
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+     
+      - name: Show runner info
+        run: |
+          echo " Running on self-hosted runner"
+          echo "Runner: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Directory: $(pwd)"
+          docker --version
+          docker-compose --version
+      
+
+      - name: Build Backend Image
+        run: |
+          cd /home/amine/actions-runner/_work/email-crud-auth/${{ github.event.repository.name }}/backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/email-app-backend:latest .
+      
+      - name: Build Frontend Image
+        run: |
+          cd /home/amine/actions-runner/_work/email-crud-auth/${{ github.event.repository.name }}/client
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/email-app-frontend:latest .
+      
+    
+      - name: Push to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/email-app-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/email-app-frontend:latest
+      
+    
+      - name: Deploy with Docker Compose
+        run: |
+          cd /home/amine/actions-runner/_work/email-crud-auth/${{ github.event.repository.name }}
+          
+          echo "Stopping old containers..."
+          docker-compose down || true
+          
+          echo " Starting new containers..."
+          docker-compose up -d
+          
+          echo " Deployment complete!"
+          docker-compose ps
+      
+      
+      - name: Verify Application
+        run: |
+          echo "Checking if application is running..."
+          sleep 10
+          
+          # Check backend
+          curl -f http://localhost:3000 || echo " Backend not responding on port 3000"
+          
+          # Check frontend
+          curl -f http://localhost || echo "Frontend not responding on port 80"
+          
+          echo "Application verification complete"
+      
+      # List directory (like your test workflow)
+      - name: List project files
+        run: |
+          echo " Project structure:"
+          ls -la
