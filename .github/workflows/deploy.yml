@@ -19,10 +19,10 @@ jobs:
 
       - name: Build and Push Backend
         run: |
-          docker build -t yourname/email-app-backend ./backend
-          docker push yourname/email-app-backend
+          docker build -t aminebouhaik13/email-app-backend ./backend
+          docker push aminebouhaik13/email-app-backend
 
       - name: Build and Push Frontend
         run: |
-          docker build -t yourname/email-app-frontend ./client
-          docker push yourname/email-app-frontend
+          docker build -t aminebouhaik13/email-app-frontend ./client
+          docker push aminebouhaik13/email-app-frontend
