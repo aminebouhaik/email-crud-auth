@@ -44,6 +44,9 @@ services:
       - email_network
 
   frontend:
+    build:
+      context: ./client
+      dockerfile: dockerfile  # Specify your lowercase dockerfile
     image: ${DOCKER_USERNAME:-aminebouhaik13}/email-app-frontend:latest
     container_name: email_frontend
     restart: always
