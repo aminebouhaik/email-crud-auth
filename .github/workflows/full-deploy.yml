@@ -45,7 +45,7 @@ jobs:
       
       - name: Clean up existing containers
         run: |
-          echo "🧹 Cleaning up existing containers..."
+          echo " Cleaning up existing containers..."
           # Force remove any containers with these names
           docker rm -f email_postgres email_backend email_frontend 2>/dev/null || true
           
@@ -56,13 +56,13 @@ jobs:
         run: |
           export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           
-          echo "🏗️ Pulling latest images..."
+          echo " Pulling latest images..."
           docker-compose pull
           
-          echo "🚀 Starting new containers..."
+          echo " Starting new containers..."
           docker-compose up -d
           
-          echo "✅ Deployment complete!"
+          echo " Deployment complete!"
           docker-compose ps
       
       - name: Wait for services
@@ -70,15 +70,15 @@ jobs:
       
       - name: Verify Backend
         run: |
-          echo "🔍 Checking backend..."
-          curl -f http://localhost:5000 || echo "⚠️ Backend not responding on port 5000"
+          echo " Checking backend..."
+          curl -f http://localhost:5000 || echo " Backend not responding on port 5000"
       
       - name: Verify Frontend
         run: |
-          echo "🔍 Checking frontend..."
-          curl -f http://localhost:3000 || echo "⚠️ Frontend not responding on port 3000"
+          echo " Checking frontend..."
+          curl -f http://localhost:3000 || echo " Frontend not responding on port 3000"
       
       - name: Show running containers
         run: |
-          echo "📋 Running containers:"
+          echo " Running containers:"
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
