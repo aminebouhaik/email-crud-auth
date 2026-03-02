@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS emails (
   id SERIAL PRIMARY KEY,
-  subject TEXT,
-  email VARCHAR(255) NOT NULL,  
+  email VARCHAR(255) NOT NULL,  -- Changed from subject/body to email
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
