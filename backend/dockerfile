@@ -2,11 +2,15 @@ FROM node:18
 
 WORKDIR /app
 
+# Copy package files first (for better caching)
 COPY package*.json ./
-
 RUN npm install --legacy-peer-deps
 
+# Copy everything else - FORCE fresh copy
 COPY . .
+
+# Debug: show what files were copied
+RUN echo "=== FILES IN /APP AFTER COPY ===" && ls -la && echo "=== END ==="
 
 EXPOSE 5000
 

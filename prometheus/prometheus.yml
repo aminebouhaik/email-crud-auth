@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Monitor Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Monitor Ubuntu host via Node Exporter (running on host)
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9100']  # For WSL/Docker Desktop
+      # If on Linux: - targets: ['172.17.0.1:9100']  # Docker host IP
+
+  # Monitor Docker containers via cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Monitor your backend API (if you add metrics endpoint)
+  - job_name: 'email_backend'
+    static_configs:
+      - targets: ['backend:5000']
+    metrics_path: /metrics  # You'll need to add this endpoint to your backend
