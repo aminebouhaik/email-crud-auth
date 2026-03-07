@@ -49,3 +49,4 @@ cd email-crud-auth
 ## Build and start containers
 
 docker compose up --build
+# updated
