@@ -64,27 +64,27 @@ jobs:
           
           # Check backend
           if curl -s -f http://localhost:5000 > /dev/null; then
-            echo "✅ Backend is healthy"
+            echo " Backend is healthy"
           else
-            echo "❌ Backend is not responding"
+            echo " Backend is not responding"
             exit 1
           fi
           
           # Check frontend
           if curl -s -f http://localhost:3000 > /dev/null; then
-            echo "✅ Frontend is healthy"
+            echo " Frontend is healthy"
           else
-            echo "❌ Frontend is not responding"
+            echo " Frontend is not responding"
             exit 1
           fi
       
       - name: Deployment Summary
         run: |
           echo " Deployment complete!"
-          echo "📱 Frontend: http://localhost:3000"
-          echo "⚙️ Backend API: http://localhost:5000"
-          echo "📊 Prometheus: http://localhost:9090"
-          echo "📈 Grafana: http://localhost:3001 (admin/admin)"
+          echo " Frontend: http://localhost:3000"
+          echo "Backend API: http://localhost:5000"
+          echo " Prometheus: http://localhost:9090"
+          echo "Grafana: http://localhost:3001 (admin/admin)"
           echo ""
           echo "Running containers:"
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
