@@ -45,8 +45,11 @@ jobs:
         run: |
           export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           
-          # Only restart app services
-          docker-compose up -d --no-deps --build backend frontend
+          # Pull latest images
+          docker-compose pull backend frontend
+          
+          # Recreate ONLY backend and frontend, never touch monitoring
+          docker-compose up -d --no-deps --force-recreate backend frontend
           
           echo "✅ App services deployed"
       
@@ -54,37 +57,55 @@ jobs:
         if: steps.check_monitoring.outputs.monitoring_changed == 'true'
         run: |
           echo "📊 Monitoring configs changed, updating..."
-          docker-compose up -d prometheus grafana cadvisor node-exporter
+          # --no-recreate = only start if not already running
+          docker-compose up -d --no-deps --no-recreate prometheus grafana cadvisor node-exporter
           echo "✅ Monitoring services updated"
       
       - name: Verify Application
         run: |
           echo "🔍 Verifying deployment..."
-          sleep 10
-          
-          # Check backend
-          if curl -s -f http://localhost:5000 > /dev/null; then
-            echo " Backend is healthy"
-          else
-            echo " Backend is not responding"
-            exit 1
-          fi
-          
-          # Check frontend
-          if curl -s -f http://localhost:3000 > /dev/null; then
-            echo " Frontend is healthy"
-          else
-            echo " Frontend is not responding"
-            exit 1
-          fi
+
+          # Wait for backend with retries (up to 60 seconds)
+          echo "⏳ Waiting for backend..."
+          for i in $(seq 1 12); do
+            if curl -s -f http://localhost:5000 > /dev/null 2>&1; then
+              echo "✅ Backend is healthy"
+              break
+            fi
+            if [ $i -eq 12 ]; then
+              echo "❌ Backend is not responding after 60s"
+              echo "--- Backend container logs ---"
+              docker-compose logs --tail=50 backend
+              exit 1
+            fi
+            echo "   Attempt $i/12 - waiting 5s..."
+            sleep 5
+          done
+
+          # Wait for frontend with retries (up to 60 seconds)
+          echo "⏳ Waiting for frontend..."
+          for i in $(seq 1 12); do
+            if curl -s -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Frontend is healthy"
+              break
+            fi
+            if [ $i -eq 12 ]; then
+              echo "❌ Frontend is not responding after 60s"
+              echo "--- Frontend container logs ---"
+              docker-compose logs --tail=50 frontend
+              exit 1
+            fi
+            echo "   Attempt $i/12 - waiting 5s..."
+            sleep 5
+          done
       
       - name: Deployment Summary
         run: |
           echo " Deployment complete!"
           echo " Frontend: http://localhost:3000"
-          echo "Backend API: http://localhost:5000"
+          echo " Backend API: http://localhost:5000"
           echo " Prometheus: http://localhost:9090"
-          echo "Grafana: http://localhost:3001 (admin/admin)"
+          echo " Grafana: http://localhost:3001 (admin/admin)"
           echo ""
           echo "Running containers:"
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
