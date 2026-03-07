@@ -56,7 +56,6 @@ jobs:
         if: steps.check_monitoring.outputs.monitoring_changed == 'true'
         run: |
           echo "📊 Monitoring configs changed, updating..."
-          # --no-recreate = only start if not already running
           docker-compose up -d --no-deps --no-recreate prometheus grafana cadvisor node-exporter
           echo "✅ Monitoring services updated"
       
@@ -67,7 +66,7 @@ jobs:
           # Wait for backend with retries (up to 60 seconds)
           echo "⏳ Waiting for backend..."
           for i in $(seq 1 12); do
-            if curl -s -f http://localhost:5000 > /dev/null 2>&1; then
+            if curl -s -f http://localhost:5000/health > /dev/null 2>&1; then
               echo "✅ Backend is healthy"
               break
             fi
