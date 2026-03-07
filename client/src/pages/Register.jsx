@@ -19,7 +19,7 @@ function Register() {
       return;
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("password must be at least 6 characters");
       return;
     }
     setLoading(true);
