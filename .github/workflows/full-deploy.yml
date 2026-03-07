@@ -101,11 +101,11 @@ jobs:
       
       - name: Deployment Summary
         run: |
-          echo " Deployment complete!"
-          echo " Frontend: http://localhost:3000"
-          echo " Backend API: http://localhost:5000"
-          echo " Prometheus: http://localhost:9090"
-          echo " Grafana: http://localhost:3001 (admin/admin)"
+          echo "🚀 Deployment complete!"
+          echo "🌐 Frontend: http://localhost:3000"
+          echo "🔧 Backend API: http://localhost:5000"
+          echo "📊 Prometheus: http://localhost:9090"
+          echo "📈 Grafana: http://localhost:3001 (admin/admin)"
           echo ""
           echo "Running containers:"
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
